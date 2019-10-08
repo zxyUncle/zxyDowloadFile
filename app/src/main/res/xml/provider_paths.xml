@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-path
+            name="external_files"
+            path="Download" />
+    <external-path name="image_external_files" path="."/>
+    <external-path
+            name="external_storage_root"
+            path="." />
+    <files-path name="freso_files" path="ImagePipelineCacheDefault" />
+    <paths>
+        <root-path
+                name="camera_photos"
+                path="" />
+    </paths>
+</paths>

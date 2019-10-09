@@ -57,7 +57,7 @@ Step 2. Add the dependency
  
  
  # 更新日志 1.1
- 1、修改9.0不能安装的BUg
+ 1、修改9.0不能安装的BUg     
  2、增加强制更新
  
 

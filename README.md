@@ -19,7 +19,7 @@ Step 2. Add the dependency
 
           implementation 'com.github.zxyUncle:zxyDowloadFile:Tag'
 
-##使用：
+##使用：Kotlin版，当然也可以用java调用
 
  1. 获取写入权限
 
@@ -36,11 +36,22 @@ Step 2. Add the dependency
 
  2. 执行下载
 
-            //开始下载
+         /**
+         * 开始下载- 可以取消的对话框进度条
+         * 1、apk下载路径
+         * 2、this
+         */
         DowloadFile().init("http://cdn.ferry10.com/packages/10/pinjamdong2/PinjamDong.apk", this)
-        
 
+**或者**
 
- 3. 如果感觉下载的对话框不好看，自己把module下载了，将zxydowload（module）加入自己的项目
+            /**
+         * 开始下载
+         * 1、apk下载路径
+         * 2、this
+         * 3、是否强制更新
+         */
+        DowloadFile().init("http://cdn.ferry10.com/packages/10/pinjamdong2/PinjamDong.apk", this,true)
 
+ 3. 如果感觉下载的对话框不好看，自己把项目下载了，将zxydowload（module）加入自己的项目，修改内部布局
 

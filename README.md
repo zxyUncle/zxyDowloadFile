@@ -54,4 +54,10 @@ Step 2. Add the dependency
         DowloadFile().init("http://cdn.ferry10.com/packages/10/pinjamdong2/PinjamDong.apk", this,true)
 
  3. 如果感觉下载的对话框不好看，自己把项目下载了，将zxydowload（module）加入自己的项目，修改内部布局
+ 
+ 
+ # 更新日志 1.1
+ 1、修改9.0不能安装的BUg
+ 2、增加强制更新
+ 
 

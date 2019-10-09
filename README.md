@@ -46,7 +46,7 @@ Step 2. Add the dependency
 **或者**
 
             /**
-         * 开始下载
+         * 开始下载- 强制更新
          * 1、apk下载路径
          * 2、this
          * 3、是否强制更新

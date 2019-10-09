@@ -19,7 +19,7 @@ Step 2. Add the dependency
 
           implementation 'com.github.zxyUncle:zxyDowloadFile:Tag'
 
-##使用：Kotlin版，当然也可以用java调用
+#使用：Kotlin版，当然也可以用java调用
 
  1. 获取写入权限
 

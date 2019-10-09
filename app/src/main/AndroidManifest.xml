@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.zxy.zxydowloadfile">
+    <!--&lt;!&ndash;安卓8.0打开apk安装更新&ndash;&gt;-->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <application
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"

@@ -91,10 +91,6 @@ class DowloadFile {
         initNet(url)
     }
 
-    fun showForceUpdate(){
-
-    }
-
     /**
      * 网路初始化
      * @param url String

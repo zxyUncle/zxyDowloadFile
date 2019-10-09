@@ -12,6 +12,7 @@
             android:networkSecurityConfig="@xml/network_security_config"
             tools:ignore="HardcodedDebugMode"
             android:usesCleartextTraffic="true">
+        <!--   android:authorities="com.zxy.zxydowload.fileprovider"-->
         <provider
                 android:name="androidx.core.content.FileProvider"
                 android:authorities="com.zxy.zxydowload.fileprovider"

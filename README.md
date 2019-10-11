@@ -1,5 +1,5 @@
 # android 版本更新
-# 目前因为内容提供者导致的，只能在一个app上改，需要修改module的包名，跟provider的包名才能在不同应用上改，不懂的不要用。。。，后期更新这个bug
+# 目前因为内容提供者导致的，只能在一个app上安装，需要修改module的包名，跟provider的包名才能在不同应用上安装，后期更新这个bug-容我想想
 
 [![](https://jitpack.io/v/zxyUncle/zxyDowloadFile.svg)](https://jitpack.io/#zxyUncle/zxyDowloadFile)
 

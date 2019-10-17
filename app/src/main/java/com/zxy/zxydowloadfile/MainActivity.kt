@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
                 requestPermissions(permissions.toTypedArray(), REQUEST_CODE_CONTACT);
             }
         }
+
         //开始下载
         DowloadFile().init("http://cdn.ferry10.com/packages/10/pinjamdong2/PinjamDong.apk", this,true)
     }

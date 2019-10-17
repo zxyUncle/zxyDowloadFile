@@ -21,7 +21,7 @@ Step 2. Add the dependency
 
 # 使用：Kotlin版，当然也可以用java调用
 
- 1. 获取写入权限,必须先获取写入权限，否则下载不会成功，获取权限可以使用插件 permissionsdispatcher（有写入权限的可以滤过此步骤）   
+#  1. 获取写入权限,必须先获取写入权限，否则下载不会成功，获取权限可以使用插件 permissionsdispatcher（有写入权限的可以滤过此步骤）
 
         //首先获取动态权限-写入权限,简单操作，可以看到效果，需要运行两边，有写入权限的只需要运行一遍，这里主要是下载功能
         if (Build.VERSION.SDK_INT >= 23) {
@@ -34,7 +34,7 @@ Step 2. Add the dependency
             }
         }
 
- 2. 执行下载
+#  2. 执行下载
 
         /**
          * 在获取的权限的回调之后执行，否则没有写入权限
@@ -54,14 +54,14 @@ Step 2. Add the dependency
          * 3、是否强制更新，下载对话框不会被取消，强制显示
          */
         DowloadFile().init("http://cdn.ferry10.com/packages/10/pinjamdong2/PinjamDong.apk", this,true)    
-3. 如果感觉下载的对话框不好看，自己把项目下载了，将zxydowload（module）加入自己的项目，修改内部布局
+#  3. 如果感觉下载的对话框不好看，自己把项目下载了，将zxydowload（module）加入自己的项目，修改内部布局  
 
 
-#更新日志 1.1：    
-1、修改9.0不能安装的BUg    
-2、增加强制更新     
-3、设置进度条颜色设置，防止不同机型颜色不一致     
+#更新日志 1.1：  
+1、修改9.0不能安装的BUg  
+2、增加强制更新   
+3、设置进度条颜色设置，防止不同机型颜色不一致   
 
-#更新日志 1.3：     
-1、修改去掉内容提供者，在module中执行     
-2、修改一个手机只能有一个app使用这个module的bug    
+#更新日志 1.3：    
+1、修改去掉内容提供者，在module中执行    
+2、修改一个手机只能有一个app使用这个module的bug  

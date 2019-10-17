@@ -1,4 +1,4 @@
-# android 版本更新 一句话完成下载
+# android 版本更新 一句话完成下载，适配7.0,8.0,9.0系统安装apk
 
 
 [![](https://jitpack.io/v/zxyUncle/zxyDowloadFile.svg)](https://jitpack.io/#zxyUncle/zxyDowloadFile)

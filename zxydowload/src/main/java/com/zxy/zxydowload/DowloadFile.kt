@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -12,6 +13,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.Message
+import android.provider.SyncStateContract
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
@@ -27,6 +29,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import androidx.core.content.ContextCompat.startActivity
+import com.orhanobut.logger.Logger
 import com.zxy.zxytools.dialog.AlertDialogUtils
 import java.lang.ref.WeakReference
 
@@ -43,14 +46,14 @@ class DowloadFile {
     var inputStream: InputStream? = null
     var fileOutputStream: FileOutputStream? = null
     var mContext: Context? = null
-    lateinit var fileName: String
+    private lateinit var fileName: String
     var TAG = "dowload"
     var path = Environment.getExternalStorageDirectory()
     lateinit var alertDialogUtils: AlertDialogUtils
     var dialog_progressBar: ProgressBar? = null //滚动条
     var dilaog_temp: TextView? = null//百分比
     lateinit var myHandler: MyHandler
-    var isForceUpdate: Boolean = false//是否强制更新
+    private var isForceUpdate: Boolean = false//是否强制更新
 
     inner class MyHandler(activity: Activity) : Handler() {
         private val mActivity: WeakReference<Activity> = WeakReference(activity)
@@ -58,8 +61,6 @@ class DowloadFile {
             if (mActivity.get() == null) {
                 return
             }
-            val activity = mActivity.get()
-
             if (alertDialogUtils == null) {
                 showAlertDialog(mContext!!)
             }
@@ -69,13 +70,14 @@ class DowloadFile {
                 dilaog_temp = alertDialogUtils.layoutView.findViewById(R.id.dilaog_temp)
             }
             dialog_progressBar!!.progress = msg.arg1
-            dilaog_temp!!.text = "${msg.arg1.toString()}%"
+            dilaog_temp!!.text = "${msg.arg1}%"
             //100%取消弹出框
             if (msg.arg1 == 100) {
                 alertDialogUtils.cancel()
             }
         }
     }
+
 
     /**
      * 初始化
@@ -145,18 +147,18 @@ class DowloadFile {
 
             fileOutputStream = FileOutputStream(fileAPK)
             var bytes = ByteArray(1024)
-            var len = 0
+            var len: Int
             //获取下载的文件的大小
             var fileSize = response.body()!!.contentLength()
             var sum = 0
-            var porSize = 0
+            var porSize: Int
             while (inputStream!!.read(bytes).apply { len = this } != -1) {
                 fileOutputStream!!.write(bytes, 0, len)
                 sum += len
                 porSize = ((sum * 1.0f / fileSize) * 100).toInt()
                 var message = Message()
                 message.arg1 = porSize;
-                Log.e(TAG, "下载进度:${porSize}")
+                Log.e(TAG, "下载进度:$porSize")
                 myHandler.sendMessage(message)
             }
             fileOutputStream!!.flush()
@@ -180,7 +182,7 @@ class DowloadFile {
     }
 
     private fun getApkPath(): String {
-        return "${path}/${fileName}"
+        return "$path/$fileName"
     }
 
     /**
@@ -205,15 +207,19 @@ class DowloadFile {
         val intent = Intent(Intent.ACTION_VIEW)
         //判读版本是否在7.0以上
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val contentUri = FileProvider.getUriForFile(mContext!!, "com.zxy.zxydowload.fileprovider", fileAPK!!)
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            val contentUri = FileProvider.getUriForFile(
+                mContext!!,
+                "${mContext!!.applicationContext.packageName}.fileprovider",
+                fileAPK!!
+            )
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             intent.setDataAndType(contentUri, "application/vnd.android.package-archive")
             //兼容8.0
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                var hasInstallPermission = mContext!!.getPackageManager().canRequestPackageInstalls()
+                var hasInstallPermission = mContext!!.packageManager.canRequestPackageInstalls()
                 if (!hasInstallPermission) {
                     //请求安装未知应用来源的权限
-                    ActivityCompat.requestPermissions(
+                    requestPermissions(
                         mContext as Activity,
                         arrayOf(Manifest.permission.REQUEST_INSTALL_PACKAGES),
                         6666

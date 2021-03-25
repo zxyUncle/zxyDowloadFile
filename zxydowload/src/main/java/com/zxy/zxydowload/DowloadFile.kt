@@ -1,36 +1,32 @@
 package com.zxy.zxydowload
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.Message
-import android.provider.SyncStateContract
 import android.util.Log
-import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
+import androidx.fragment.app.FragmentActivity
+import com.zxy.zxydialog.AlertDialogUtils
+import com.zxy.zxydialog.TToast
+import com.zxy.zxydowload.utils.PackageUtils
+import com.zxy.zxydowload.utils.launchMain
+import com.zxy.zxydowload.utils.requestPermission
 import okhttp3.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import androidx.core.content.ContextCompat.startActivity
-import com.orhanobut.logger.Logger
-import com.zxy.zxytools.dialog.AlertDialogUtils
 import java.lang.ref.WeakReference
 
 
@@ -41,65 +37,77 @@ import java.lang.ref.WeakReference
  * * 下载apk module
  * ******************************************
  */
-class DowloadFile {
-    var fileAPK: File? = null
+@SuppressLint("StaticFieldLeak")
+object DowloadFile {
+    var TAG = "dowload"
+    lateinit var fileAPK: File
     var inputStream: InputStream? = null
     var fileOutputStream: FileOutputStream? = null
-    var mContext: Context? = null
+    lateinit var mContext: Activity
     private lateinit var fileName: String
-    var TAG = "dowload"
-    var path = Environment.getExternalStorageDirectory()
-    lateinit var alertDialogUtils: AlertDialogUtils
-    var dialog_progressBar: ProgressBar? = null //滚动条
-    var dilaog_temp: TextView? = null//百分比
-    lateinit var myHandler: MyHandler
-    private var isForceUpdate: Boolean = false//是否强制更新
-
-    inner class MyHandler(activity: Activity) : Handler() {
-        private val mActivity: WeakReference<Activity> = WeakReference(activity)
-        override fun handleMessage(msg: Message) {
-            if (mActivity.get() == null) {
-                return
-            }
-            if (alertDialogUtils == null) {
-                showAlertDialog(mContext!!)
-            }
-            if (dialog_progressBar == null) {
-                dialog_progressBar =
-                    alertDialogUtils.layoutView.findViewById(R.id.dialog_progressBar)
-                dilaog_temp = alertDialogUtils.layoutView.findViewById(R.id.dilaog_temp)
-            }
-            dialog_progressBar!!.progress = msg.arg1
-            dilaog_temp!!.text = "${msg.arg1}%"
-            //100%取消弹出框
-            if (msg.arg1 == 100) {
-                alertDialogUtils.cancel()
-            }
-        }
-    }
-
+    private lateinit var fileDirPath: String
 
     /**
      * 初始化
      * @param url String    更新APK的路径
      * @param mContext Context
-     * @param isForceUpdate Boolean 是否强制更新 可选
+     * @param callBack Int 返回的进度  Boolean 是否下载失败
      */
-    fun init(url: String, mContext: Context, isForceUpdate: Boolean = false) {
+    @JvmStatic
+    fun init(url: String, mContext: FragmentActivity, callBack: (Int, Boolean) -> Unit) {
         this.mContext = mContext
-        this.isForceUpdate = isForceUpdate
-        myHandler = MyHandler(mContext!! as Activity)// 初始化Handler
-        showAlertDialog(mContext!!)
-        initNet(url)
+        fileDirPath = getMidPath(mContext)
+        //获取权限
+        mContext.requestPermission(
+            mutableListOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+            ), {
+                initNet(url, callBack)
+            }, {
+                TToast.show("permission denied")
+            })
+    }
+
+    /**
+     * 获取apk的路径
+     */
+    @JvmStatic
+    fun getApkPath(): String {
+        return "$fileDirPath$fileName"
+    }
+
+
+    /**
+     * 初始化安装目录，文件名
+     */
+    private fun getMidPath(context: Context): String {
+        var sdDir: File
+        var sdCardExist = Environment.getExternalStorageState().equals(
+            Environment.MEDIA_MOUNTED
+        )
+        // 判断sd卡是否存在
+        if (sdCardExist) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                //Android10之后
+                sdDir = context.getExternalFilesDir(null)!!
+            } else {
+                sdDir = Environment.getExternalStorageDirectory()// 获取SD卡根目录
+            }
+        } else {
+            sdDir = Environment.getRootDirectory()// 获取跟目录
+        }
+
+        this.fileName =
+            "${PackageUtils.getAppName(mContext)}${PackageUtils.getVersionCode(mContext)}${System.currentTimeMillis()}.apk"
+        return "$sdDir/zxy/"
     }
 
     /**
      * 网路初始化
      * @param url String
      */
-    fun initNet(url: String) {
-        this.fileName =
-            "${PackageUtils.getAppName(mContext!!)}${PackageUtils.getVersionCode(mContext!!)}${System.currentTimeMillis()}.apk"
+    private fun initNet(url: String, callBack: (Int, Boolean) -> Unit) {
         val request = Request.Builder()
             .url(url)
             .build()
@@ -107,20 +115,30 @@ class DowloadFile {
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e(TAG, "下载失败：url")
-                if (alertDialogUtils != null) {
-                    alertDialogUtils.cancel()
+                launchMain {
+                    callBack(0, false)
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 Log.e(TAG, response.toString())
-                if (response.isSuccessful()) {
+                if (response.isSuccessful) {
                     Log.e(TAG, "开始下载")
-                    writeFile(response)
+                    writeFile(response, callBack)
                 }
             }
 
         })
+    }
+
+    /**
+     * 创建文件
+     */
+    private fun fileMidExist(fileDirPath: String) {
+        var fileDir = File(fileDirPath)
+        if (!fileDir.isDirectory) {
+            fileDir.mkdirs()
+        }
     }
 
     /**
@@ -129,41 +147,47 @@ class DowloadFile {
      */
     private fun fileExist(file: File) {
         if (!file.exists()) {
-            file.delete()
+            file.createNewFile()
         }
-        file.createNewFile()
     }
 
     /**
      * 数据写入
      * @param response Response
      */
-    private fun writeFile(response: Response) {
-        inputStream = response.body()!!.byteStream()
-        fileAPK = File(path, fileName)
-        fileExist(fileAPK!!)
-        Log.e(TAG, fileAPK!!.path.toString())
+    private fun writeFile(response: Response, callBack: (Int, Boolean) -> Unit) {
+        inputStream = response.body()?.byteStream()
+        fileAPK = File(fileDirPath + fileName)
+        // 如果文件夹不存在则创建
+        fileMidExist(fileDirPath)
+        fileExist(fileAPK)
+        Log.e(TAG, fileAPK.path.toString())
         try {
-
             fileOutputStream = FileOutputStream(fileAPK)
             var bytes = ByteArray(1024)
             var len: Int
             //获取下载的文件的大小
-            var fileSize = response.body()!!.contentLength()
+            var fileSize = response.body()?.contentLength() ?: 0
             var sum = 0
             var porSize: Int
+            var oldPorSize = 0
             while (inputStream!!.read(bytes).apply { len = this } != -1) {
                 fileOutputStream!!.write(bytes, 0, len)
                 sum += len
                 porSize = ((sum * 1.0f / fileSize) * 100).toInt()
                 var message = Message()
-                message.arg1 = porSize;
-                Log.e(TAG, "下载进度:$porSize")
-                myHandler.sendMessage(message)
+                message.arg1 = porSize
+                launchMain {
+                    if (oldPorSize != porSize) {
+                        Log.e(TAG, "下载百分比:$porSize")
+                        oldPorSize = porSize
+                        callBack(porSize, true)
+                    }
+                }
             }
             fileOutputStream!!.flush()
             Log.e(TAG, "下载成功")
-            installApk(fileAPK!!)
+            installApk(fileAPK)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -181,24 +205,6 @@ class DowloadFile {
 
     }
 
-    private fun getApkPath(): String {
-        return "$path/$fileName"
-    }
-
-    /**
-     * 显示AlertDialog
-     */
-    fun showAlertDialog(mContext: Context) {
-        alertDialogUtils = AlertDialogUtils.build(mContext)
-            .setView(R.layout.dialog_button)    //必选 设置布局View
-            .setCancelable(!isForceUpdate)                //可选 设置是否可以取消，默认true
-            .setTransparency(0.5f)                //可选 设置窗口透明度，默认0.5
-            .setOnClick(R.id.dilaog_temp)    //可选 设置布局的点击事件
-            .create(object : AlertDialogUtils.Builder.AlertDialogUtilsListener {
-                override fun onClickDialog(view: View) {
-                }
-            })
-    }
 
     /**
      * 安装APK
@@ -208,15 +214,15 @@ class DowloadFile {
         //判读版本是否在7.0以上
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val contentUri = FileProvider.getUriForFile(
-                mContext!!,
-                "${mContext!!.applicationContext.packageName}.fileprovider",
-                fileAPK!!
+                mContext,
+                "${mContext.applicationContext.packageName}.fileprovider",
+                fileAPK
             )
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             intent.setDataAndType(contentUri, "application/vnd.android.package-archive")
             //兼容8.0
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                var hasInstallPermission = mContext!!.packageManager.canRequestPackageInstalls()
+                var hasInstallPermission = mContext.packageManager.canRequestPackageInstalls()
                 if (!hasInstallPermission) {
                     //请求安装未知应用来源的权限
                     requestPermissions(
@@ -229,6 +235,6 @@ class DowloadFile {
         } else {
             intent.setDataAndType(Uri.fromFile(fileAPK), "application/vnd.android.package-archive")
         }
-        mContext!!.startActivity(intent)
+        mContext.startActivity(intent)
     }
 }

@@ -1,5 +1,6 @@
-package com.zxy.zxydowload
+package com.zxy.zxydowload.utils
 
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 
@@ -35,6 +36,10 @@ class PackageUtils {
 
             return null
 
+        }
+
+        fun getAppID(context: Activity):String{
+           return context.application.packageName
         }
 
         /**

@@ -7,15 +7,13 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.1"
 
 
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     }
@@ -49,6 +47,15 @@ dependencies {
     //design
     implementation 'com.android.support:design:29.0.0'
     //AlertDilaog工具类-https://github.com/zxyUncle/tools#link1
-    implementation 'com.github.zxyUncle:tools:1.6.4'
+//    implementation 'com.github.zxyUncle:tools:1.6.4'
+
+    //权限
+    implementation 'com.permissionx.guolindev:permissionx:1.4.0'
+    //Kotlin 协程--https://github.com/Kotlin/kotlinx.coroutines
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1"
+
+    api 'com.github.zxyUncle:DialogDemo:latest.release'
+
 
 }

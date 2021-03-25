@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun showAlertDialog() {
         alertDialogUtils = AlertDialogUtils.build(this)
-            .setView(com.zxy.zxydowload.R.layout.dialog_button)    //必选 设置布局View
+            .setView(R.layout.dialog_button)    //必选 设置布局View
             .setTransparency(0.5f)                //可选 设置窗口透明度，默认0.5
             .setOnClick(R.id.tvStep)    //可选 设置布局的点击事件-这里没有点击事件，就默认了
             .create { view, alertDialogUtils ->

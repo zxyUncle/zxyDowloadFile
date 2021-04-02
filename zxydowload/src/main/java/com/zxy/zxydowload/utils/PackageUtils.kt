@@ -9,7 +9,7 @@ import android.content.pm.PackageManager
  * Created by zxy on 2019/9/29-15:25
  * Class functions
  * ******************************************
- * *
+ * * https://cloudpick-fe-test.oss-cn-shanghai.aliyuncs.com/app-package/yunna/$[DamvpXoXEzGOKbfNJfueb]-app-n1_normal-debug
  * ******************************************
  */
 class PackageUtils {

@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var tvStep: TextView
 
     val apkPath =
-        "https://cloudpick-fe-test.oss-cn-shanghai.aliyuncs.com/app-package/yunna/\$[DamvpXoXEzGOKbfNJfueb]-app-n1_normal-debug.apk"
+        "你自己的apk网路路径.apk"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

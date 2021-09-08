@@ -27,7 +27,7 @@ class PackageUtils {
             val pm = context.getPackageManager()
             //获取包信息
             try {
-                val packageInfo = pm.getPackageInfo(context.getPackageName(), 0)
+                val packageInfo = pm.getPackageInfo(context.packageName, 0)
                 //返回版本号
                 return packageInfo.versionName
             } catch (e: PackageManager.NameNotFoundException) {
@@ -55,7 +55,7 @@ class PackageUtils {
             val pm = context.getPackageManager()
             //获取包信息
             try {
-                val packageInfo = pm.getPackageInfo(context.getPackageName(), 0)
+                val packageInfo = pm.getPackageInfo(context.packageName, 0)
                 //返回版本号
                 return packageInfo.versionCode
             } catch (e: PackageManager.NameNotFoundException) {
@@ -74,16 +74,16 @@ class PackageUtils {
          * @return 名称
          */
         fun getAppName(context: Context): String? {
-            val pm = context.getPackageManager()
+            val pm = context.packageManager
             //获取包信息
             try {
-                val packageInfo = pm.getPackageInfo(context.getPackageName(), 0)
+                val packageInfo = pm.getPackageInfo(context.packageName, 0)
                 //获取应用 信息
                 val applicationInfo = packageInfo.applicationInfo
                 //获取albelRes
                 val labelRes = applicationInfo.labelRes
                 //返回App的名称
-                return context.getResources().getString(labelRes)
+                return context.resources.getString(labelRes)
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }

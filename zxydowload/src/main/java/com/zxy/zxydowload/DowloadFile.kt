@@ -11,15 +11,10 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Message
 import android.util.Log
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
-import com.zxy.zxydialog.AlertDialogUtils
 import com.zxy.zxydialog.TToast
-import com.zxy.zxydowload.utils.PackageUtils
 import com.zxy.zxydowload.utils.launchMain
 import com.zxy.zxydowload.utils.requestPermission
 import okhttp3.*
@@ -27,7 +22,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.lang.ref.WeakReference
 
 
 /**
@@ -56,7 +50,7 @@ object DowloadFile {
     @JvmStatic
     fun init(url: String, mContext: FragmentActivity, callBack: (Int, Boolean) -> Unit) {
         this.mContext = mContext
-        fileDirPath = getMidPath(mContext)
+        fileDirPath = getMidPath()
         //获取权限
         mContext.requestPermission(
             mutableListOf(
@@ -81,26 +75,26 @@ object DowloadFile {
     /**
      * 初始化安装目录，文件名
      */
-    private fun getMidPath(context: Context): String {
-        var sdDir: File
+    private fun getMidPath(): String {
+        var sdDir: String
         var sdCardExist = Environment.getExternalStorageState().equals(
             Environment.MEDIA_MOUNTED
         )
         // 判断sd卡是否存在
-        if (sdCardExist) {
+        sdDir = if (sdCardExist) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 //Android10之后
-                sdDir = context.getExternalFilesDir(null)!!
+                Environment.getExternalStorageDirectory().path+"/Download/" //公共区域
             } else {
-                sdDir = Environment.getExternalStorageDirectory()// 获取SD卡根目录
+                Environment.getExternalStorageDirectory().path// 获取SD卡根目录
             }
         } else {
-            sdDir = Environment.getRootDirectory()// 获取跟目录
+            Environment.getRootDirectory().path// 获取跟目录
         }
 
         this.fileName =
-            "${PackageUtils.getAppName(mContext)}${PackageUtils.getVersionCode(mContext)}${System.currentTimeMillis()}.apk"
-        return "$sdDir/zxy/"
+            "${System.currentTimeMillis()}.apk"
+        return "$sdDir/apk/"
     }
 
     /**
